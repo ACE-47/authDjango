@@ -155,7 +155,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':[
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'users.authentication.CustomJWTAuthentication',
     ],
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
@@ -175,7 +176,15 @@ DJOSER = {
     'TOKEN_MODEL' : None,
 }
 
-CORS_ALLOWED_ORIGINS = getenv('CORS_ALLOWED_ORIGINS', 'http//localhost:3000, http//127.0.0.1:3000').split(',')
+AUTH_COOCKIE = 'access'
+AUTH_COOCKIE_ACCESS_MAX_AGE = 60 * 5
+AUTH_COOCKIE_REFRESH_MAX_AGE = 60 * 60 * 24
+AUTH_COOKIE_SECURE = getenv('AUTH_COOKIE_SECURE', 'True') == 'True'
+AUTH_COOCKIE_HTTP_ONLY = True
+AUTH_COOCKIE_PATH = '/'
+AUTH_COOCKIE_SAMESITE = 'None'
+
+CORS_ALLOWED_ORIGINS = getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',')
 CORS_ALLOW_CREDENTIALS = True
 
 # Default primary key field type
