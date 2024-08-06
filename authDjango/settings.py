@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'djoser',
+    'social_django',
     'users'
 ]
 
@@ -153,9 +154,17 @@ STATIC_ROOT = BASE_DIR / 'static'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# AUTH FOR social google and facebook Setting to work 
+AUTHENTICATION_BACKENDS =[
+    'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend'
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':[
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # custom JWT authentication Class
         'users.authentication.CustomJWTAuthentication',
     ],
     # Use Django's standard `django.contrib.auth` permissions,
@@ -174,8 +183,10 @@ DJOSER = {
     'USER_CREATE_PASSWORD_RETYPE' : True,
     'PASSWORD_RESET_CONFIRM_RETYPE' : True,
     'TOKEN_MODEL' : None,
+    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS' : getenv('REDIRECT_URLS').split(',')
 }
 
+# AUTH for COOKIES
 AUTH_COOCKIE = 'access'
 AUTH_COOCKIE_ACCESS_MAX_AGE = 60 * 5
 AUTH_COOCKIE_REFRESH_MAX_AGE = 60 * 60 * 24
@@ -184,6 +195,26 @@ AUTH_COOCKIE_HTTP_ONLY = True
 AUTH_COOCKIE_PATH = '/'
 AUTH_COOCKIE_SAMESITE = 'None'
 
+# AUTH for Google 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = getenv('GOOGLE_AUTH_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = getenv('GOOGLE_AUTH_SECRET_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'openid'
+]
+SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
+
+# AUTH for Facebook
+SOCIAL_AUTH_FACEBOOK_KEY = getenv('FACEBOOK_AUTH_KEY')
+SOCIAL_AUTH_FACEBOOK_SECRET_KEY = getenv('FACEBOOK_AUTH_SECRET_KEY')
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_EXTRA_PARAMS = {
+    'fields': 'email, first_name, last_name'
+}
+
+
+# for CORES HEADER PACKAGE TO WORK WITH multiple/diffrent port (django for 8000 and frontend next is 3000)
 CORS_ALLOWED_ORIGINS = getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',')
 CORS_ALLOW_CREDENTIALS = True
 
@@ -191,4 +222,5 @@ CORS_ALLOW_CREDENTIALS = True
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# custom user model class
 AUTH_USER_MODEL = 'users.UserAccount'

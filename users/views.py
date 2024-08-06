@@ -2,11 +2,43 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from djoser.social.views import ProviderAuthView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,  # for create 
     TokenRefreshView, # for refresh 
     TokenVerifyView # verify if access token is still valid
 )
+
+
+class CustomProviderAuthView(ProviderAuthView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        
+        if response.status_code == 201:
+            access_token = response.data.get('access')
+            refresh_token = response.data.get('refresh')
+            
+            response.set_cookie(
+                'access',
+                access_token,
+                max_age = settings.AUTH_COOCKIE_ACCESS_MAX_AGE,
+                path = settings.AUTH_COOCKIE_PATH,
+                httponly = settings.AUTH_COOCKIE_HTTP_ONLY,
+                samesite = settings.AUTH_COOCKIE_SAMESITE,
+                secure = settings.AUTH_COOKIE_SECURE
+            )
+            
+            response.set_cookie(
+                'refresh',
+                refresh_token,
+                max_age = settings.AUTH_COOCKIE_REFRESH_MAX_AGE,
+                path = settings.AUTH_COOCKIE_PATH,
+                httponly = settings.AUTH_COOCKIE_HTTP_ONLY,
+                samesite = settings.AUTH_COOCKIE_SAMESITE,
+                secure = settings.AUTH_COOKIE_SECURE
+            )
+            
+        return response
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs) :
